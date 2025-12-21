@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Error en el Pago{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
+        <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </div>
+
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Error en el Pago</h1>
+        <p class="text-gray-600 mb-6">{{ error }}</p>
+
+        <button onclick="history.back()" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition-colors">
+            Volver a intentar
+        </button>
+    </div>
+</div>
+{% endblock %}
