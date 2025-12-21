@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Pagar - {{ link.description }}{% endblock %}
+{% block title %}Pagar - {{ link.description | e }}{% endblock %}
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center p-4">
@@ -11,7 +11,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                 </svg>
             </div>
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ link.description }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ link.description | e }}</h1>
             <p class="text-4xl font-bold text-primary">{{ formatted_amount }}</p>
             <p class="text-gray-500">CLP</p>
         </div>
@@ -42,7 +42,7 @@ async function initPayment() {
     btn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Procesando...';
 
     try {
-        const res = await fetch('/pay/{{ link.slug }}/init', { method: 'POST' });
+        const res = await fetch('/pay/' + {{ link.slug | tojson }} + '/init', { method: 'POST' });
         const data = await res.json();
 
         if (res.ok) {

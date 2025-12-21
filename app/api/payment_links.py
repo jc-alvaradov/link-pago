@@ -1,60 +1,12 @@
 from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
 from sqlalchemy import desc
 
 from app.api.deps import CurrentUser, DbSession
 from app.models.payment_link import PaymentLink, PaymentLinkStatus
-from app.models.user import User
 from app.schemas.payment_link import PaymentLinkCreate, PaymentLinkRead, PaymentLinkUpdate
-from app.config import get_settings
 
-settings = get_settings()
 router = APIRouter()
-
-
-# === DEV ENDPOINTS (quitar en producción) ===
-
-class DevLinkCreate(BaseModel):
-    amount: int
-    description: str
-    single_use: bool = True
-
-
-@router.post("/dev/create", response_model=PaymentLinkRead, tags=["dev"])
-async def dev_create_link(link_data: DevLinkCreate, db: DbSession):
-    """Endpoint de desarrollo para crear links sin autenticación"""
-    # Crear o obtener usuario de prueba
-    dev_user = db.query(User).filter(User.email == "dev@test.com").first()
-    if not dev_user:
-        dev_user = User(
-            email="dev@test.com",
-            name="Dev User",
-            google_id="dev_google_id_123",
-        )
-        db.add(dev_user)
-        db.commit()
-        db.refresh(dev_user)
-
-    link = PaymentLink(
-        user_id=dev_user.id,
-        amount=link_data.amount,
-        description=link_data.description,
-        single_use=link_data.single_use,
-    )
-    db.add(link)
-    db.commit()
-    db.refresh(link)
-    return link
-
-
-@router.get("/dev/all", response_model=list[PaymentLinkRead], tags=["dev"])
-async def dev_list_all_links(db: DbSession):
-    """Listar todos los links (sin filtrar por usuario)"""
-    return db.query(PaymentLink).order_by(desc(PaymentLink.created_at)).all()
-
-
-# === FIN DEV ENDPOINTS ===
 
 
 @router.post("/", response_model=PaymentLinkRead, status_code=status.HTTP_201_CREATED)

@@ -20,7 +20,7 @@ app.add_middleware(
     session_cookie="session",
     max_age=86400 * 7,  # 7 days
     same_site="lax",
-    https_only=False,  # Set True in production with HTTPS
+    https_only=settings.is_https,
 )
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

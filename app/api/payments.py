@@ -1,7 +1,10 @@
+import logging
 import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Request, HTTPException, status, Depends, BackgroundTasks
+
+logger = logging.getLogger(__name__)
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -48,11 +51,12 @@ async def payment_return(
         try:
             commit_response = webpay_service.commit_transaction(token_ws)
         except Exception as e:
+            logger.error(f"Webpay commit failed for token {token_ws}: {e}")
             transaction.status = TransactionStatus.FAILED
             db.commit()
             return templates.TemplateResponse(
                 "payment_error.html",
-                {"request": request, "error": f"Error al confirmar pago: {str(e)}"},
+                {"request": request, "error": "Error al confirmar el pago. Por favor intente nuevamente."},
             )
 
         transaction.webpay_response = commit_response
@@ -218,11 +222,12 @@ async def init_payment(
             return_url=return_url,
         )
     except Exception as e:
+        logger.error(f"Webpay create transaction failed for order {buy_order}: {e}")
         transaction.status = TransactionStatus.FAILED
         db.commit()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al iniciar transacción: {str(e)}",
+            detail="Error al iniciar la transacción. Por favor intente nuevamente.",
         )
 
     transaction.token = result["token"]

@@ -17,20 +17,20 @@
         <div class="bg-gray-50 rounded-xl p-6 mb-6 text-left space-y-3">
             <div class="flex justify-between">
                 <span class="text-gray-500">Monto</span>
-                <span class="font-bold text-gray-900">{{ amount }} CLP</span>
+                <span class="font-bold text-gray-900">{{ amount | e }} CLP</span>
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">Descripción</span>
-                <span class="text-gray-900">{{ description }}</span>
+                <span class="text-gray-900">{{ description | e }}</span>
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">Código autorización</span>
-                <span class="font-mono text-gray-900">{{ authorization_code }}</span>
+                <span class="font-mono text-gray-900">{{ authorization_code | e }}</span>
             </div>
             {% if card_last_four %}
             <div class="flex justify-between">
                 <span class="text-gray-500">Tarjeta</span>
-                <span class="font-mono text-gray-900">**** {{ card_last_four }}</span>
+                <span class="font-mono text-gray-900">**** {{ card_last_four | e }}</span>
             </div>
             {% endif %}
         </div>

@@ -24,3 +24,7 @@ htmlcov/
 
 # Alembic
 *.db
+
+# Claude Code
+CLAUDE.md
+.claude/
