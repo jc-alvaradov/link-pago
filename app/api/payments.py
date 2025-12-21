@@ -2,20 +2,19 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Request, HTTPException, status, Depends, BackgroundTasks
-
-logger = logging.getLogger(__name__)
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.database import get_db
 from app.models.payment_link import PaymentLink, PaymentLinkStatus
 from app.models.transaction import Transaction, TransactionStatus
-from app.services.webpay import webpay_service
 from app.services.email import send_payment_notification
-from app.config import get_settings
+from app.services.webpay import webpay_service
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")

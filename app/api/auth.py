@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 from sqlalchemy.orm import Session
@@ -33,11 +33,11 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception:
-        raise HTTPException(status_code=400, detail="Error en autenticación con Google")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Error en autenticación con Google")
 
     user_info = token.get("userinfo")
     if not user_info:
-        raise HTTPException(status_code=400, detail="No se pudo obtener información del usuario")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se pudo obtener información del usuario")
 
     google_id = user_info.get("sub")
     email = user_info.get("email")

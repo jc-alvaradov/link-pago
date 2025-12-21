@@ -1,8 +1,12 @@
-import aiosmtplib
-from email.mime.text import MIMEText
+import logging
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+import aiosmtplib
 
 from app.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 async def send_payment_notification(
@@ -14,11 +18,10 @@ async def send_payment_notification(
     settings = get_settings()
 
     if not settings.smtp_user or not settings.smtp_password:
-        print(f"[Email] Notificación de pago (SMTP no configurado):")
-        print(f"  Para: {recipient_email}")
-        print(f"  Descripción: {description}")
-        print(f"  Monto: ${amount:,}")
-        print(f"  Código: {authorization_code}")
+        logger.info(
+            f"Payment notification (SMTP not configured): "
+            f"to={recipient_email} amount=${amount:,} code={authorization_code}"
+        )
         return
 
     message = MIMEMultipart("alternative")
@@ -73,4 +76,4 @@ async def send_payment_notification(
             start_tls=True,
         )
     except Exception as e:
-        print(f"[Email] Error enviando notificación: {e}")
+        logger.error(f"Failed to send payment notification to {recipient_email}: {e}")
