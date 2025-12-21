@@ -16,8 +16,6 @@ class TransactionRead(BaseModel):
     installments_number: int | None
     amount: int
     card_last_four: str | None
-    card_type: str | None
-    payer_email: str | None
     created_at: datetime
     authorized_at: datetime | None
 

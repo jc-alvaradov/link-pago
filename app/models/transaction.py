@@ -39,9 +39,6 @@ class Transaction(Base):
     installments_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     amount: Mapped[int] = mapped_column(Integer, nullable=False)
     card_last_four: Mapped[str | None] = mapped_column(String(4), nullable=True)
-    card_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    payer_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    payer_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
     )

@@ -43,14 +43,3 @@ class PaymentLinkRead(PaymentLinkBase):
 
     class Config:
         from_attributes = True
-
-
-class PaymentLinkPublic(BaseModel):
-    slug: str
-    amount: int
-    description: str
-    currency: str
-    is_payable: bool
-
-    class Config:
-        from_attributes = True

@@ -8,11 +8,6 @@ class UserBase(BaseModel):
     name: str
 
 
-class UserCreate(UserBase):
-    google_id: str
-    picture_url: str | None = None
-
-
 class UserRead(UserBase):
     id: UUID
     picture_url: str | None
