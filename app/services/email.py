@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 import aiosmtplib
 
 from app.config import get_settings
+from app.utils import format_clp
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ async def send_payment_notification(
     message["From"] = settings.email_from
     message["To"] = recipient_email
 
-    formatted_amount = f"${amount:,.0f}".replace(",", ".")
+    formatted_amount = format_clp(amount)
 
     html = f"""
     <!DOCTYPE html>

@@ -13,6 +13,7 @@ from app.models.payment_link import PaymentLink, PaymentLinkStatus
 from app.models.transaction import Transaction, TransactionStatus
 from app.services.email import send_payment_notification
 from app.services.webpay import webpay_service
+from app.utils import format_clp
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -45,6 +46,24 @@ async def payment_return(
             return templates.TemplateResponse(
                 "payment_error.html",
                 {"request": request, "error": "Transacción no encontrada"},
+            )
+
+        # Idempotency check: prevent double-processing
+        if transaction.status != TransactionStatus.PENDING:
+            if transaction.status == TransactionStatus.AUTHORIZED:
+                return templates.TemplateResponse(
+                    "payment_success.html",
+                    {
+                        "request": request,
+                        "amount": format_clp(transaction.amount),
+                        "authorization_code": transaction.authorization_code,
+                        "card_last_four": transaction.card_last_four,
+                        "description": transaction.payment_link.description,
+                    },
+                )
+            return templates.TemplateResponse(
+                "payment_error.html",
+                {"request": request, "error": "Esta transacción ya fue procesada"},
             )
 
         try:
@@ -93,7 +112,7 @@ async def payment_return(
                 "payment_success.html",
                 {
                     "request": request,
-                    "amount": f"${transaction.amount:,.0f}".replace(",", "."),
+                    "amount": format_clp(transaction.amount),
                     "authorization_code": transaction.authorization_code,
                     "card_last_four": transaction.card_last_four,
                     "description": link.description,
@@ -181,7 +200,7 @@ async def payment_page(
         {
             "request": request,
             "link": link,
-            "formatted_amount": f"${link.amount:,.0f}".replace(",", "."),
+            "formatted_amount": format_clp(link.amount),
         },
     )
 
