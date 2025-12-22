@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings
-from pydantic import computed_field, model_validator
 from functools import lru_cache
+
+from pydantic import computed_field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Transbank public test credentials (only for integration/testing)
 _TRANSBANK_INTEGRATION_CODE = "597055555532"
@@ -54,9 +55,7 @@ class Settings(BaseSettings):
                 self.webpay_api_key = _TRANSBANK_INTEGRATION_KEY
         return self
 
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 @lru_cache

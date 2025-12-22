@@ -27,6 +27,23 @@ def generate_buy_order() -> str:
     return f"{timestamp}{random_part}"[:26]
 
 
+def get_link_by_slug(db: Session, slug: str) -> PaymentLink | None:
+    return db.query(PaymentLink).filter(PaymentLink.slug == slug).first()
+
+
+def get_transaction_by_buy_order(db: Session, buy_order: str) -> Transaction | None:
+    return db.query(Transaction).filter(Transaction.buy_order == buy_order).first()
+
+
+def mark_transaction_failed(db: Session, buy_order: str | None) -> None:
+    if not buy_order:
+        return
+    transaction = get_transaction_by_buy_order(db, buy_order)
+    if transaction:
+        transaction.status = TransactionStatus.FAILED
+        db.commit()
+
+
 # IMPORTANTE: /return debe estar ANTES de /{slug} para que no sea capturado como slug
 @router.get("/return", response_class=HTMLResponse)
 async def payment_return(
@@ -128,12 +145,7 @@ async def payment_return(
 
     # Case 2: User aborted payment
     if TBK_TOKEN:
-        transaction = db.query(Transaction).filter(
-            Transaction.buy_order == TBK_ORDEN_COMPRA
-        ).first()
-        if transaction:
-            transaction.status = TransactionStatus.FAILED
-            db.commit()
+        mark_transaction_failed(db, TBK_ORDEN_COMPRA)
         return templates.TemplateResponse(
             "payment_error.html",
             {"request": request, "error": "Pago cancelado por el usuario"},
@@ -141,12 +153,7 @@ async def payment_return(
 
     # Case 3: Timeout
     if TBK_ID_SESION and TBK_ORDEN_COMPRA and not token_ws:
-        transaction = db.query(Transaction).filter(
-            Transaction.buy_order == TBK_ORDEN_COMPRA
-        ).first()
-        if transaction:
-            transaction.status = TransactionStatus.FAILED
-            db.commit()
+        mark_transaction_failed(db, TBK_ORDEN_COMPRA)
         return templates.TemplateResponse(
             "payment_error.html",
             {"request": request, "error": "Tiempo de pago expirado"},
@@ -165,7 +172,7 @@ async def payment_page(
     slug: str,
     db: Session = Depends(get_db),
 ):
-    link = db.query(PaymentLink).filter(PaymentLink.slug == slug).first()
+    link = get_link_by_slug(db, slug)
 
     if not link:
         return templates.TemplateResponse(
@@ -210,7 +217,7 @@ async def init_payment(
     slug: str,
     db: Session = Depends(get_db),
 ):
-    link = db.query(PaymentLink).filter(PaymentLink.slug == slug).first()
+    link = get_link_by_slug(db, slug)
 
     if not link or not link.is_payable:
         raise HTTPException(

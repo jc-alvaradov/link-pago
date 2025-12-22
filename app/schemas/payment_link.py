@@ -1,10 +1,16 @@
 from datetime import datetime, timezone
 from uuid import UUID
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.payment_link import PaymentLinkStatus
 
 MAX_AMOUNT_CLP = 999_999_999  # ~1 billion CLP
+
+
+def _validate_future_datetime(v: datetime | None) -> datetime | None:
+    if v is not None and v <= datetime.now(timezone.utc):
+        raise ValueError("La fecha de expiración debe ser en el futuro")
+    return v
 
 
 class PaymentLinkCreate(BaseModel):
@@ -14,12 +20,7 @@ class PaymentLinkCreate(BaseModel):
     expires_at: datetime | None = None
     extra_data: dict = Field(default_factory=dict)
 
-    @field_validator("expires_at")
-    @classmethod
-    def validate_expires_at(cls, v: datetime | None) -> datetime | None:
-        if v is not None and v <= datetime.now(timezone.utc):
-            raise ValueError("La fecha de expiración debe ser en el futuro")
-        return v
+    _validate_expires_at = field_validator("expires_at")(_validate_future_datetime)
 
 
 class PaymentLinkUpdate(BaseModel):
@@ -27,15 +28,12 @@ class PaymentLinkUpdate(BaseModel):
     expires_at: datetime | None = None
     status: PaymentLinkStatus | None = None
 
-    @field_validator("expires_at")
-    @classmethod
-    def validate_expires_at(cls, v: datetime | None) -> datetime | None:
-        if v is not None and v <= datetime.now(timezone.utc):
-            raise ValueError("La fecha de expiración debe ser en el futuro")
-        return v
+    _validate_expires_at = field_validator("expires_at")(_validate_future_datetime)
 
 
 class PaymentLinkRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     slug: str
     amount: int
@@ -48,6 +46,3 @@ class PaymentLinkRead(BaseModel):
     views_count: int
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True

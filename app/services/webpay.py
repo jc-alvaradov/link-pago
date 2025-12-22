@@ -45,36 +45,18 @@ class WebpayService:
 
     def commit_transaction(self, token: str) -> dict:
         response = self.tx.commit(token)
-        # SDK v5 devuelve dict
-        if isinstance(response, dict):
-            return {
-                "vci": response.get("vci"),
-                "amount": response.get("amount"),
-                "status": response.get("status"),
-                "buy_order": response.get("buy_order"),
-                "session_id": response.get("session_id"),
-                "card_detail": response.get("card_detail", {}),
-                "accounting_date": response.get("accounting_date"),
-                "transaction_date": response.get("transaction_date"),
-                "authorization_code": response.get("authorization_code"),
-                "payment_type_code": response.get("payment_type_code"),
-                "response_code": response.get("response_code"),
-                "installments_number": response.get("installments_number"),
-            }
-        return {
-            "vci": response.vci,
-            "amount": response.amount,
-            "status": response.status,
-            "buy_order": response.buy_order,
-            "session_id": response.session_id,
-            "card_detail": response.card_detail,
-            "accounting_date": response.accounting_date,
-            "transaction_date": response.transaction_date,
-            "authorization_code": response.authorization_code,
-            "payment_type_code": response.payment_type_code,
-            "response_code": response.response_code,
-            "installments_number": response.installments_number,
-        }
+        # SDK v5 returns dict, normalize to dict for consistency
+        if not isinstance(response, dict):
+            response = response.__dict__
+
+        fields = [
+            "vci", "amount", "status", "buy_order", "session_id",
+            "accounting_date", "transaction_date", "authorization_code",
+            "payment_type_code", "response_code", "installments_number",
+        ]
+        result = {field: response.get(field) for field in fields}
+        result["card_detail"] = response.get("card_detail", {})
+        return result
 
     def is_approved(self, commit_response: dict) -> bool:
         return (
