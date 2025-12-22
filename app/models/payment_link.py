@@ -12,7 +12,6 @@ from app.database import Base
 class PaymentLinkStatus(str, enum.Enum):
     ACTIVE = "active"
     PAID = "paid"
-    EXPIRED = "expired"
     CANCELLED = "cancelled"
 
 

@@ -5,12 +5,9 @@ from pydantic import BaseModel, Field, field_validator
 from app.models.payment_link import PaymentLinkStatus
 
 
-class PaymentLinkBase(BaseModel):
+class PaymentLinkCreate(BaseModel):
     amount: int = Field(..., ge=50, description="Monto en CLP (mínimo 50)")
     description: str = Field(..., min_length=1, max_length=500)
-
-
-class PaymentLinkCreate(PaymentLinkBase):
     single_use: bool = True
     expires_at: datetime | None = None
     extra_data: dict = Field(default_factory=dict)
@@ -29,9 +26,11 @@ class PaymentLinkUpdate(BaseModel):
     status: PaymentLinkStatus | None = None
 
 
-class PaymentLinkRead(PaymentLinkBase):
+class PaymentLinkRead(BaseModel):
     id: UUID
     slug: str
+    amount: int
+    description: str
     currency: str
     status: PaymentLinkStatus
     single_use: bool

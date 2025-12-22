@@ -3,13 +3,10 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
 
-class UserBase(BaseModel):
+class UserRead(BaseModel):
+    id: UUID
     email: EmailStr
     name: str
-
-
-class UserRead(UserBase):
-    id: UUID
     picture_url: str | None
     is_active: bool
     created_at: datetime

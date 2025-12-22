@@ -12,7 +12,6 @@ class TransactionStatus(str, enum.Enum):
     PENDING = "pending"
     AUTHORIZED = "authorized"
     FAILED = "failed"
-    REFUNDED = "refunded"
 
 
 class Transaction(Base):
