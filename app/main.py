@@ -28,9 +28,9 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
 # Routers
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(payment_links.router, prefix="/api/v1/links", tags=["links"])
-app.include_router(payments.router, prefix="/pay", tags=["payments"])
+app.include_router(payments.router, prefix="/api/v1/pay", tags=["payments"])
 
 
 @app.get("/")
